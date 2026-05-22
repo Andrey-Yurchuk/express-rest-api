@@ -14,10 +14,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
     "prepare": "husky"
-  },
-  "overrides": {
-    "@hono/node-server": "1.19.13"
   },
   "lint-staged": {
     "*.{js,ts}": [
@@ -29,7 +28,7 @@
     ]
   },
   "dependencies": {
-    "@prisma/client": "^7.8.0",
+    "@prisma/client": "^6.19.3",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -62,7 +61,7 @@
     "jest": "^30.4.2",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.3",
-    "prisma": "^7.8.0",
+    "prisma": "^6.19.3",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.11",
     "tsx": "^4.22.3",
