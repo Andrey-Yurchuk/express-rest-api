@@ -39,7 +39,10 @@ export function signAccessToken(payload: TokenPayload): string {
 }
 
 export function signRefreshToken(payload: TokenPayload): string {
-  const options: SignOptions = { expiresIn: getRefreshTtlSeconds() };
+  const options: SignOptions = {
+    expiresIn: getRefreshTtlSeconds(),
+    jwtid: crypto.randomUUID(),
+  };
   return jwt.sign(payload, readSecret('JWT_REFRESH_SECRET'), options);
 }
 
