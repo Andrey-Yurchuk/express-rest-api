@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install --no-audit --no-fund
 
-COPY tsconfig.json ./
+COPY tsconfig.json tsconfig.build.json ./
 COPY prisma ./prisma
 COPY src ./src
 

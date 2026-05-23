@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/api/Dockerfile
     restart: on-failure
     depends_on:
       mysql:
