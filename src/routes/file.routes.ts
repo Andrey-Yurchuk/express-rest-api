@@ -18,6 +18,18 @@ export function createFileRouter(): Router {
     controller.list(req, res).catch(next);
   });
 
+  router.get('/download/:id', authMiddleware, (req, res, next) => {
+    controller.download(req, res, next).catch(next);
+  });
+
+  router.put('/update/:id', authMiddleware, upload.single('file'), (req, res, next) => {
+    controller.update(req, res).catch(next);
+  });
+
+  router.delete('/delete/:id', authMiddleware, (req, res, next) => {
+    controller.delete(req, res).catch(next);
+  });
+
   router.get('/:id', authMiddleware, (req, res, next) => {
     controller.getById(req, res).catch(next);
   });

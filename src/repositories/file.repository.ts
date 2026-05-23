@@ -10,6 +10,15 @@ export interface CreateFileInput {
   storedName: string;
 }
 
+export interface UpdateFileInput {
+  updatedById: string;
+  originalName: string;
+  extension: string;
+  mimeType: string;
+  size: number;
+  storedName: string;
+}
+
 export interface FileMetadata {
   id: string;
   originalName: string;
@@ -62,5 +71,17 @@ export class FileRepository {
       where: { id },
       select: FILE_METADATA_SELECT,
     });
+  }
+
+  update(id: string, data: UpdateFileInput): Promise<FileMetadata> {
+    return this.prisma.file.update({
+      where: { id },
+      data,
+      select: FILE_METADATA_SELECT,
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.file.delete({ where: { id } });
   }
 }
