@@ -6,6 +6,7 @@ import express, { Express } from 'express';
 import { errorHandler } from './middleware/error-handler.middleware';
 import { notFoundHandler } from './middleware/not-found.middleware';
 import { createAuthRouter } from './routes/auth.routes';
+import { createFileRouter } from './routes/file.routes';
 import { createHealthRouter } from './routes/health.routes';
 
 export function createApp(): Express {
@@ -16,6 +17,7 @@ export function createApp(): Express {
 
   app.use('/api/health', createHealthRouter());
   app.use('/api', createAuthRouter());
+  app.use('/api/file', createFileRouter());
 
   app.use(notFoundHandler);
   app.use(errorHandler);
