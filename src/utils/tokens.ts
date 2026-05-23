@@ -46,3 +46,38 @@ export function signRefreshToken(payload: TokenPayload): string {
 export function hashRefreshToken(token: string): string {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
+
+export function safeEqualHex(incomingHash: string, storedHash: string): boolean {
+  if (incomingHash.length !== storedHash.length) {
+    return false;
+  }
+
+  const incomingBuffer = Buffer.from(incomingHash, 'hex');
+  const storedBuffer = Buffer.from(storedHash, 'hex');
+  if (incomingBuffer.length !== storedBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(incomingBuffer, storedBuffer);
+}
+
+export function verifyRefreshToken(token: string): TokenPayload | null {
+  let decoded: unknown;
+  try {
+    decoded = jwt.verify(token, readSecret('JWT_REFRESH_SECRET'));
+  } catch {
+    return null;
+  }
+
+  if (typeof decoded !== 'object' || decoded === null) {
+    return null;
+  }
+
+  const sub = (decoded as { sub?: unknown }).sub;
+  const sid = (decoded as { sid?: unknown }).sid;
+  if (typeof sub !== 'string' || typeof sid !== 'string') {
+    return null;
+  }
+
+  return { sub, sid };
+}

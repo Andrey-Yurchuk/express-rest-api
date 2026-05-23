@@ -15,5 +15,9 @@ export function createAuthRouter(): Router {
     controller.signin(req, res).catch(next);
   });
 
+  router.post('/signin/new_token', (req, res, next) => {
+    controller.refreshToken(req, res).catch(next);
+  });
+
   return router;
 }

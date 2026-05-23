@@ -9,8 +9,11 @@ import { hashPassword, verifyPassword } from '../utils/password';
 import {
   getRefreshTtlSeconds,
   hashRefreshToken,
+  safeEqualHex,
   signAccessToken,
   signRefreshToken,
+  TokenPayload,
+  verifyRefreshToken,
 } from '../utils/tokens';
 
 export interface AuthCredentials {
@@ -41,7 +44,7 @@ export class AuthService {
     const passwordHash = await hashPassword(credentials.password);
     await this.users.create(credentials.id, passwordHash);
 
-    return this.issueTokens(credentials.id);
+    return this.createSessionTokens(credentials.id);
   }
 
   async signin(credentials: AuthCredentials): Promise<AuthTokens> {
@@ -57,22 +60,51 @@ export class AuthService {
       throw new HttpError(401, 'Invalid id or password');
     }
 
-    return this.issueTokens(user.id);
+    return this.createSessionTokens(user.id);
+  }
+
+  async refreshTokens(refreshToken: unknown): Promise<AuthTokens> {
+    if (typeof refreshToken !== 'string' || refreshToken.trim() === '') {
+      throw new HttpError(400, 'Refresh token is required');
+    }
+
+    const payload = verifyRefreshToken(refreshToken);
+    if (!payload) {
+      throw new HttpError(401, 'Invalid refresh token');
+    }
+
+    const session = await this.sessions.findById(payload.sid);
+    if (!session || session.userId !== payload.sub) {
+      throw new HttpError(401, 'Invalid refresh token');
+    }
+    if (session.revoked) {
+      throw new HttpError(401, 'Refresh token is revoked');
+    }
+    if (session.expiresAt.getTime() <= Date.now()) {
+      throw new HttpError(401, 'Refresh token is expired');
+    }
+
+    const incomingHash = hashRefreshToken(refreshToken);
+    if (!safeEqualHex(incomingHash, session.refreshTokenHash)) {
+      throw new HttpError(401, 'Invalid refresh token');
+    }
+
+    return this.rotateSessionTokens({ sub: session.userId, sid: session.id });
   }
 
   private validateCredentials(credentials: AuthCredentials): void {
     if (typeof credentials.id !== 'string' || credentials.id.trim() === '') {
-      throw new HttpError(400, 'id is required');
+      throw new HttpError(400, 'Id is required');
     }
     if (typeof credentials.password !== 'string' || credentials.password.length === 0) {
-      throw new HttpError(400, 'password is required');
+      throw new HttpError(400, 'Password is required');
     }
     if (!isValidId(credentials.id)) {
-      throw new HttpError(400, 'id must be a valid email or phone number');
+      throw new HttpError(400, 'Id must be a valid email or phone number');
     }
   }
 
-  private async issueTokens(userId: string): Promise<AuthTokens> {
+  private async createSessionTokens(userId: string): Promise<AuthTokens> {
     const sessionId = crypto.randomUUID();
     const refreshToken = signRefreshToken({ sub: userId, sid: sessionId });
     const refreshTokenHash = hashRefreshToken(refreshToken);
@@ -86,6 +118,21 @@ export class AuthService {
     });
 
     const accessToken = signAccessToken({ sub: userId, sid: sessionId });
+    return { accessToken, refreshToken };
+  }
+
+  private async rotateSessionTokens(payload: TokenPayload): Promise<AuthTokens> {
+    const refreshToken = signRefreshToken(payload);
+    const refreshTokenHash = hashRefreshToken(refreshToken);
+    const expiresAt = new Date(Date.now() + getRefreshTtlSeconds() * 1000);
+
+    await this.sessions.rotateRefreshToken({
+      id: payload.sid,
+      refreshTokenHash,
+      expiresAt,
+    });
+
+    const accessToken = signAccessToken(payload);
     return { accessToken, refreshToken };
   }
 }

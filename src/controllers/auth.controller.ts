@@ -9,6 +9,10 @@ interface AuthBody {
   password?: unknown;
 }
 
+interface RefreshBody {
+  refreshToken?: unknown;
+}
+
 @injectable()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -26,6 +30,11 @@ export class AuthController {
       id: readString(req.body?.id),
       password: readString(req.body?.password),
     });
+    res.status(200).json(tokens);
+  }
+
+  async refreshToken(req: Request<unknown, unknown, RefreshBody>, res: Response): Promise<void> {
+    const tokens = await this.authService.refreshTokens(req.body?.refreshToken);
     res.status(200).json(tokens);
   }
 }
