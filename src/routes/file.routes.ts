@@ -14,5 +14,13 @@ export function createFileRouter(): Router {
     controller.upload(req, res).catch(next);
   });
 
+  router.get('/list', authMiddleware, (req, res, next) => {
+    controller.list(req, res).catch(next);
+  });
+
+  router.get('/:id', authMiddleware, (req, res, next) => {
+    controller.getById(req, res).catch(next);
+  });
+
   return router;
 }

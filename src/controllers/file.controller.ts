@@ -4,6 +4,7 @@ import { injectable } from 'tsyringe';
 import { HttpError } from '../errors/http-error';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
 import { FileService } from '../services/file.service';
+import { getDefaultListSize, getDefaultPage, parsePositiveInt } from '../utils/pagination';
 
 @injectable()
 export class FileController {
@@ -25,5 +26,23 @@ export class FileController {
     });
 
     res.status(201).json(metadata);
+  }
+
+  async list(req: Request, res: Response): Promise<void> {
+    const page = parsePositiveInt(req.query.page, getDefaultPage());
+    const listSize = parsePositiveInt(req.query.list_size, getDefaultListSize());
+
+    const result = await this.fileService.list({ page, listSize });
+    res.status(200).json(result);
+  }
+
+  async getById(req: Request, res: Response): Promise<void> {
+    const id = req.params.id;
+    if (typeof id !== 'string') {
+      throw new HttpError(400, 'Invalid file id');
+    }
+
+    const file = await this.fileService.getById(id);
+    res.status(200).json(file);
   }
 }

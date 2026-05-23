@@ -18,7 +18,24 @@ export interface FileMetadata {
   size: number;
   storedName: string;
   uploadedAt: Date;
+  updatedAt: Date;
 }
+
+export interface FindManyFilesOptions {
+  skip: number;
+  take: number;
+}
+
+const FILE_METADATA_SELECT = {
+  id: true,
+  originalName: true,
+  extension: true,
+  mimeType: true,
+  size: true,
+  storedName: true,
+  uploadedAt: true,
+  updatedAt: true,
+} as const;
 
 @injectable()
 export class FileRepository {
@@ -27,15 +44,23 @@ export class FileRepository {
   create(input: CreateFileInput): Promise<FileMetadata> {
     return this.prisma.file.create({
       data: input,
-      select: {
-        id: true,
-        originalName: true,
-        extension: true,
-        mimeType: true,
-        size: true,
-        storedName: true,
-        uploadedAt: true,
-      },
+      select: FILE_METADATA_SELECT,
+    });
+  }
+
+  findMany(options: FindManyFilesOptions): Promise<FileMetadata[]> {
+    return this.prisma.file.findMany({
+      skip: options.skip,
+      take: options.take,
+      orderBy: [{ uploadedAt: 'desc' }, { id: 'desc' }],
+      select: FILE_METADATA_SELECT,
+    });
+  }
+
+  findById(id: string): Promise<FileMetadata | null> {
+    return this.prisma.file.findUnique({
+      where: { id },
+      select: FILE_METADATA_SELECT,
     });
   }
 }
