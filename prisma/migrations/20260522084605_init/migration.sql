@@ -2,8 +2,8 @@
 CREATE TABLE `users` (
     `id` VARCHAR(191) NOT NULL,
     `passwordHash` VARCHAR(191) NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `createdAt` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` DATETIME(0) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -14,9 +14,9 @@ CREATE TABLE `sessions` (
     `userId` VARCHAR(191) NOT NULL,
     `refreshTokenHash` VARCHAR(191) NOT NULL,
     `revoked` BOOLEAN NOT NULL DEFAULT false,
-    `expiresAt` DATETIME(3) NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `expiresAt` DATETIME(0) NOT NULL,
+    `createdAt` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` DATETIME(0) NOT NULL,
 
     INDEX `sessions_userId_idx`(`userId`),
     PRIMARY KEY (`id`)
@@ -32,8 +32,8 @@ CREATE TABLE `files` (
     `mimeType` VARCHAR(191) NOT NULL,
     `size` INTEGER NOT NULL,
     `storedName` VARCHAR(191) NOT NULL,
-    `uploadedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `uploadedAt` DATETIME(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` DATETIME(0) NOT NULL,
 
     UNIQUE INDEX `files_storedName_key`(`storedName`),
     PRIMARY KEY (`id`)
