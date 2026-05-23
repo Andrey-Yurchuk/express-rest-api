@@ -44,8 +44,6 @@ const definition: swaggerJSDoc.OAS3Definition = {
   info: {
     title: 'Express REST API',
     version: '0.1.0',
-    description:
-      'REST API for the ERP.AERO Node.js test task. Provides authentication, session management and file CRUD endpoints under the /api prefix.',
   },
   servers: [{ url: localServerUrl, description: 'localhost' }],
   tags: [
