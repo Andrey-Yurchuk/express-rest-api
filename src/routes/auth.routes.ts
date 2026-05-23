@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { container } from 'tsyringe';
 
 import { AuthController } from '../controllers/auth.controller';
+import { authMiddleware } from '../middleware/auth.middleware';
 
 export function createAuthRouter(): Router {
   const router = Router();
@@ -17,6 +18,18 @@ export function createAuthRouter(): Router {
 
   router.post('/signin/new_token', (req, res, next) => {
     controller.refreshToken(req, res).catch(next);
+  });
+
+  router.get('/info', authMiddleware, (req, res, next) => {
+    try {
+      controller.info(req, res);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.get('/logout', authMiddleware, (req, res, next) => {
+    controller.logout(req, res).catch(next);
   });
 
   return router;

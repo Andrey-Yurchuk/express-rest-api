@@ -63,6 +63,10 @@ export class AuthService {
     return this.createSessionTokens(user.id);
   }
 
+  async logout(sessionId: string): Promise<void> {
+    await this.sessions.revokeById(sessionId);
+  }
+
   async refreshTokens(refreshToken: unknown): Promise<AuthTokens> {
     if (typeof refreshToken !== 'string' || refreshToken.trim() === '') {
       throw new HttpError(400, 'Refresh token is required');

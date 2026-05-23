@@ -56,4 +56,12 @@ export class SessionRepository {
       select: { id: true },
     });
   }
+
+  async revokeById(id: string): Promise<void> {
+    await this.prisma.session.update({
+      where: { id },
+      data: { revoked: true },
+      select: { id: true },
+    });
+  }
 }

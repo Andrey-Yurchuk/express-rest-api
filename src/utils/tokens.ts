@@ -62,9 +62,17 @@ export function safeEqualHex(incomingHash: string, storedHash: string): boolean 
 }
 
 export function verifyRefreshToken(token: string): TokenPayload | null {
+  return verifyTokenWithSecret(token, 'JWT_REFRESH_SECRET');
+}
+
+export function verifyAccessToken(token: string): TokenPayload | null {
+  return verifyTokenWithSecret(token, 'JWT_ACCESS_SECRET');
+}
+
+function verifyTokenWithSecret(token: string, secretName: string): TokenPayload | null {
   let decoded: unknown;
   try {
-    decoded = jwt.verify(token, readSecret('JWT_REFRESH_SECRET'));
+    decoded = jwt.verify(token, readSecret(secretName));
   } catch {
     return null;
   }
